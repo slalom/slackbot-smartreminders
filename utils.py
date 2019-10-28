@@ -53,21 +53,24 @@ def parse_command(command):
     'Sunday': 6
   }
 
-  command = command.split(' ')
+  # split the messages from the recurrence
+  command = command.split(' every ')
+  reminder_body = command[0]
+  recurrence = command[1].split(' ')
 
-  if(command[0] not in possible_occurance.keys()):
-    return command[0] + " is not a valid start occurance"
+  if(recurrence[0] not in possible_occurance.keys()):
+    return recurrence[0] + " is not a valid start occurance"
 
-  if(command[1] not in possible_days.keys()):
-    return command[1] + " is not a valid start date"
+  if(recurrence[1] not in possible_days.keys()):
+    return recurrence[1] + " is not a valid start date"
 
   currentYear = datetime.now().year
   currentMonth = datetime.now().month
 
-  startWeek = possible_occurance[command[0]]
-  startWeekDay = possible_days[command[1]]
+  startWeek = possible_occurance[recurrence[0]]
+  startWeekDay = possible_days[recurrence[1]]
 
-  time = command[3]
+  time = recurrence[3]
   mode = time[-2:]
   
   if(len(time) == 6):
@@ -82,10 +85,15 @@ def parse_command(command):
   if startHour == 12 and mode == 'am':
     startHour = 0
 
-  return list_all_dates(currentMonth, currentYear, startWeek, startWeekDay, startHour, startMinute)
+  dates = list_all_dates(currentMonth, currentYear, startWeek, startWeekDay, startHour, startMinute)
+
+  return {
+    'text': reminder_body,
+    'scheduled_dates': dates
+  }
   
  
 
-# if __name__ == "__main__":
-#   command = "fourth Thursday at 5:30am"
-#   print(parse_command(command))
+if __name__ == "__main__":
+  command = "make a cup of coffee every fourth Thursday at 5:30am"
+  print(parse_command(command))
